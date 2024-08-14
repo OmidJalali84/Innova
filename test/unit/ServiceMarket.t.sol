@@ -1,19 +1,23 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.22;
 
 import {Test} from "forge-std/Test.sol";
 import {ServiceMarket, Service} from "../../../src/ServiceMarket.sol";
 
 contract TestserviceMarket is Test {
     ServiceMarket serviceMarket;
-    address constant USER = address(1);
+    address constant OWNER = address(1);
+    address constant MANAGER = address(2);
+    address constant USER = address(3);
 
     function setUp() external {
-        serviceMarket = new ServiceMarket();
+        serviceMarket = new ServiceMarket(OWNER);
+        vm.prank(OWNER);
+        serviceMarket.addManager(MANAGER);
     }
 
     function createsService() public {
-        vm.startPrank(USER);
+        vm.startPrank(MANAGER);
         serviceMarket.createService(
             1,
             "service1",
@@ -23,7 +27,7 @@ contract TestserviceMarket is Test {
             "src/file1/file2"
         );
         vm.stopPrank();
-        vm.startPrank(USER);
+        vm.startPrank(MANAGER);
         serviceMarket.createService(
             10,
             "service2",
@@ -37,6 +41,7 @@ contract TestserviceMarket is Test {
 
     function testCreatesAndFetchesAllServices() external {
         createsService();
+        vm.prank(MANAGER);
         Service[] memory dataArray = serviceMarket.fetchAllServices();
         vm.assertEq(dataArray[0].id, 1);
         vm.assertEq(dataArray[0].name, "service1");
@@ -62,7 +67,10 @@ contract TestserviceMarket is Test {
     function testRemovesServiceCorrectly() external {
         createsService();
 
+        vm.prank(MANAGER);
         serviceMarket.removeService(1);
+
+        vm.prank(MANAGER);
         Service[] memory dataArray = serviceMarket.fetchAllServices();
 
         vm.assertEq(dataArray[0].id, 10);

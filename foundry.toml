@@ -13,8 +13,12 @@ depth = 500
 
 remapping = ["@openzeppelin/contracts = /lib/openzeppelin-contracts/contracts"]
 
-solc = "0.8.18"
+solc = "0.8.22"
 
 gas_reports = ["MarketService"]
+
+via_ir = true
+optimizer = true
+optimizer_runs = 200
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

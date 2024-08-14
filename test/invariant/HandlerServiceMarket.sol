@@ -1,12 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.22;
 
 import {ServiceMarket} from "../../src/ServiceMarket.sol";
 import {Test} from "forge-std/Test.sol";
 
 contract HandlerServiceMarket is Test {
-    ServiceMarket serviceMarket = new ServiceMarket();
-    address constant USER = address(1);
+    ServiceMarket serviceMarket;
+    address constant OWNER = address(1);
+    address constant MANAGER = address(2);
+    address constant USER = address(3);
+
+    constructor() {
+        serviceMarket = new ServiceMarket(OWNER);
+        vm.prank(OWNER);
+        serviceMarket.addManager(MANAGER);
+    }
 
     function handlerCreateService(
         uint256 id,
@@ -22,7 +30,7 @@ contract HandlerServiceMarket is Test {
                 return;
             }
         }
-        vm.prank(USER);
+        vm.prank(MANAGER);
         serviceMarket.createService(
             id,
             name,
@@ -37,7 +45,7 @@ contract HandlerServiceMarket is Test {
         uint256[] memory ids = serviceMarket.getIDs();
         for (uint256 i; i < ids.length; i++) {
             if (ids[i] == id) {
-                vm.prank(USER);
+                vm.prank(MANAGER);
                 serviceMarket.removeService(id);
             } else if (i == ids.length - 1) {
                 return;

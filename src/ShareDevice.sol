@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.22;
 
 struct Device {
     uint256 id;
@@ -106,5 +106,3 @@ contract ShareDevice {
         return s_IDs;
     }
 }
-
-

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.22;
+
+import {AccessManagers} from "./utils/AccessManagers.sol";
 
 struct Service {
     uint256 id;
@@ -10,12 +12,18 @@ struct Service {
     string imageAddress;
 }
 
-contract ServiceMarket {
+contract ServiceMarket is AccessManagers {
     /**********************************************************************************************/
     /*** errors                                                                                ***/
     /**********************************************************************************************/
     error ServiceMArket__DuplicatedId();
     error ServiceMArket__ServiceIdNotExist();
+
+    /**********************************************************************************************/
+    /*** constructor                                                                             ***/
+    /**********************************************************************************************/
+
+    constructor(address initialOwner) AccessManagers(initialOwner) {}
 
     /**********************************************************************************************/
     /*** Storage                                                                                ***/
@@ -53,7 +61,7 @@ contract ServiceMarket {
         string memory code,
         string memory serviceType,
         string memory imageAddress
-    ) external {
+    ) external onlyManager {
         ///@dev Duplicate id error handling
         uint256[] memory tempIDs = s_IDs; //An memory instance of IDs array. Because accessing to storage varibales are more gas expencive.
         for (uint256 i; i < tempIDs.length; i++) {
@@ -78,7 +86,7 @@ contract ServiceMarket {
      * @notice This function will remove a service by its id
      * @dev IDs has been stored in a seprate array to handle the removing process correctlly
      */
-    function removeService(uint256 targetId) external {
+    function removeService(uint256 targetId) external onlyManager {
         uint256[] memory tempIDs = s_IDs;
 
         ///@dev removing the target ID from IDs array
@@ -101,7 +109,12 @@ contract ServiceMarket {
     /*
      * @notice Returns all the existing servicis as a array
      */
-    function fetchAllServices() external view returns (Service[] memory) {
+    function fetchAllServices()
+        external
+        view
+        onlyManager
+        returns (Service[] memory)
+    {
         Service[] memory dataArray = new Service[](s_IDs.length);
         for (uint256 i = 0; i < s_IDs.length; i++) {
             dataArray[i] = s_services[s_IDs[i]];

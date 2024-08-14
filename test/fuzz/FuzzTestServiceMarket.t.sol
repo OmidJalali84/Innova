@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.22;
 
 import {Test, console} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
@@ -7,10 +7,14 @@ import {ServiceMarket, Service} from "../../../src/ServiceMarket.sol";
 
 contract fuzzTestserviceMarket is Test {
     ServiceMarket serviceMarket;
-    address constant USER = address(1);
+    address constant OWNER = address(1);
+    address constant MANAGER = address(2);
+    address constant USER = address(3);
 
     function setUp() external {
-        serviceMarket = new ServiceMarket();
+        serviceMarket = new ServiceMarket(OWNER);
+        vm.prank(OWNER);
+        serviceMarket.addManager(MANAGER);
     }
 
     function testFuzzCreatesTheServiceAndFetchesAllServices(
@@ -34,6 +38,7 @@ contract fuzzTestserviceMarket is Test {
                 return;
             }
         }
+        vm.startPrank(MANAGER);
         serviceMarket.createService(
             id,
             name,
@@ -52,6 +57,8 @@ contract fuzzTestserviceMarket is Test {
         );
 
         Service[] memory dataArray = serviceMarket.fetchAllServices();
+        vm.stopPrank();
+
         vm.assertEq(dataArray[0].id, id);
         vm.assertEq(dataArray[0].name, name);
         vm.assertEq(dataArray[0].description, description);
@@ -88,6 +95,8 @@ contract fuzzTestserviceMarket is Test {
             }
         }
 
+        vm.startPrank(MANAGER);
+
         serviceMarket.createService(
             id,
             name,
@@ -107,6 +116,8 @@ contract fuzzTestserviceMarket is Test {
 
         serviceMarket.removeService(id);
         Service[] memory dataArray = serviceMarket.fetchAllServices();
+        vm.stopPrank();
+
         vm.assertEq(dataArray[0].id, id2);
         vm.assertEq(dataArray[0].name, name2);
         vm.assertEq(dataArray[0].description, description2);
