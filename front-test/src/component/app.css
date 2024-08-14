@@ -1,0 +1,187 @@
+/* app.css */
+
+/* General Styles */
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 50px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.navButton {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navButton.active {
+  background-color: #2980b9;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: #34495e;
+  margin-bottom: 15px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Button Styles */
+.button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #2980b9;
+}
+
+/* Table Styles */
+.servicesList {
+  margin-top: 20px;
+}
+
+.serviceTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.serviceTable th,
+.serviceTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.serviceTable th {
+  background-color: #f2f2f2;
+  color: #34495e;
+  font-weight: bold;
+}
+
+.serviceTable tr:hover {
+  background-color: #f9f9f9;
+}
+
+.serviceRow {
+  cursor: pointer;
+}
+
+.serviceDetails {
+  background-color: #f8f8f8;
+}
+
+.serviceDetailsContent p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.serviceDetailsContent p strong {
+  color: #34495e;
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  .input {
+    padding: 8px;
+  }
+
+  .button {
+    padding: 8px;
+  }
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.navbar-button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-button.active {
+  background-color: #2980b9;
+}
+
+.navbar-button:hover {
+  background-color: #2980b9;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.smart-contract {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.smart-contract.active {
+  background-color: #2980b9;
+}
+
+.smart-contract:hover {
+  background-color: #2980b9;
+}
