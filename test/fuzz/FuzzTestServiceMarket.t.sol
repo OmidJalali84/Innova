@@ -18,29 +18,28 @@ contract fuzzTestserviceMarket is Test {
     }
 
     function testFuzzCreatesTheServiceAndFetchesAllServices(
-        uint256 id,
+        uint256 nodeId,
+        uint256 serviceId,
         string memory name,
         string memory description,
         string memory code,
         string memory serviceType,
         string memory imageAddress,
-        uint256 id2,
+        uint256 nodeId2,
+        uint256 serviceId2,
         string memory name2,
         string memory description2,
         string memory code2,
         string memory serviceType2,
         string memory imageAddress2
     ) external {
-        if (id == id2) {
-            if (id2 != type(uint256).max) {
-                id2 += 1; // Modify id2 to be different if they are the same
-            } else {
-                return;
-            }
+        if (nodeId == nodeId2 && serviceId == serviceId2) {
+            nodeId++;
         }
         vm.startPrank(MANAGER);
         serviceMarket.createService(
-            id,
+            nodeId,
+            serviceId,
             name,
             description,
             code,
@@ -48,7 +47,8 @@ contract fuzzTestserviceMarket is Test {
             imageAddress
         );
         serviceMarket.createService(
-            id2,
+            nodeId2,
+            serviceId2,
             name2,
             description2,
             code2,
@@ -59,13 +59,15 @@ contract fuzzTestserviceMarket is Test {
         Service[] memory dataArray = serviceMarket.fetchAllServices();
         vm.stopPrank();
 
-        vm.assertEq(dataArray[0].id, id);
+        vm.assertEq(dataArray[0].nodeId, nodeId);
+        vm.assertEq(dataArray[0].serviceId, serviceId);
         vm.assertEq(dataArray[0].name, name);
         vm.assertEq(dataArray[0].description, description);
         vm.assertEq(dataArray[0].code, code);
         vm.assertEq(dataArray[0].serviceType, serviceType);
         vm.assertEq(dataArray[0].imageAddress, imageAddress);
-        vm.assertEq(dataArray[1].id, id2);
+        vm.assertEq(dataArray[1].nodeId, nodeId2);
+        vm.assertEq(dataArray[1].serviceId, serviceId2);
         vm.assertEq(dataArray[1].name, name2);
         vm.assertEq(dataArray[1].description, description2);
         vm.assertEq(dataArray[1].code, code2);
@@ -74,31 +76,28 @@ contract fuzzTestserviceMarket is Test {
     }
 
     function testFuzzRemovesAndFetchesAllServices(
-        uint256 id,
+        uint256 nodeId,
+        uint256 serviceId,
         string memory name,
         string memory description,
         string memory code,
         string memory serviceType,
         string memory imageAddress,
-        uint id2,
+        uint256 nodeId2,
+        uint256 serviceId2,
         string memory name2,
         string memory description2,
         string memory code2,
         string memory serviceType2,
         string memory imageAddress2
     ) external {
-        if (id == id2) {
-            if (id2 != type(uint256).max) {
-                id2 += 1; // Modify id2 to be different if they are the same
-            } else {
-                return;
-            }
+        if (nodeId == nodeId2 && serviceId == serviceId2) {
+            nodeId++;
         }
-
         vm.startPrank(MANAGER);
-
         serviceMarket.createService(
-            id,
+            nodeId,
+            serviceId,
             name,
             description,
             code,
@@ -106,7 +105,8 @@ contract fuzzTestserviceMarket is Test {
             imageAddress
         );
         serviceMarket.createService(
-            id2,
+            nodeId2,
+            serviceId2,
             name2,
             description2,
             code2,
@@ -114,11 +114,11 @@ contract fuzzTestserviceMarket is Test {
             imageAddress2
         );
 
-        serviceMarket.removeService(id);
+        serviceMarket.removeService(nodeId, serviceId);
         Service[] memory dataArray = serviceMarket.fetchAllServices();
         vm.stopPrank();
-
-        vm.assertEq(dataArray[0].id, id2);
+        vm.assertEq(dataArray[0].nodeId, nodeId2);
+        vm.assertEq(dataArray[0].serviceId, serviceId2);
         vm.assertEq(dataArray[0].name, name2);
         vm.assertEq(dataArray[0].description, description2);
         vm.assertEq(dataArray[0].code, code2);

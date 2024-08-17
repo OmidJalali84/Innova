@@ -4,8 +4,6 @@ pragma solidity 0.8.22;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract AccessManagers is Ownable {
-    address superOwner;
-
     /**
      * @dev The list of managers
      */
@@ -45,6 +43,6 @@ contract AccessManagers is Ownable {
         if (managers[account]) {
             revert AccessManagers__IsNotAlreadyManager(account);
         }
-        managers[account] = true;
+        managers[account] = false;
     }
 }

@@ -20,6 +20,7 @@ contract TestserviceMarket is Test {
         vm.startPrank(MANAGER);
         serviceMarket.createService(
             1,
+            123,
             "service1",
             "This is service1",
             "function setUp() external {serviceMarket = new serviceMarket()}",
@@ -29,7 +30,8 @@ contract TestserviceMarket is Test {
         vm.stopPrank();
         vm.startPrank(MANAGER);
         serviceMarket.createService(
-            10,
+            2,
+            12345,
             "service2",
             "This is service2",
             "function setUp() external {serviceMarket = new serviceMarket()}",
@@ -43,7 +45,8 @@ contract TestserviceMarket is Test {
         createsService();
         vm.prank(MANAGER);
         Service[] memory dataArray = serviceMarket.fetchAllServices();
-        vm.assertEq(dataArray[0].id, 1);
+        vm.assertEq(dataArray[0].nodeId, 1);
+        vm.assertEq(dataArray[0].serviceId, 123);
         vm.assertEq(dataArray[0].name, "service1");
         vm.assertEq(dataArray[0].description, "This is service1");
         vm.assertEq(
@@ -53,7 +56,8 @@ contract TestserviceMarket is Test {
         vm.assertEq(dataArray[0].serviceType, "type1");
         vm.assertEq(dataArray[0].imageAddress, "src/file1/file2");
 
-        vm.assertEq(dataArray[1].id, 10);
+        vm.assertEq(dataArray[1].nodeId, 2);
+        vm.assertEq(dataArray[1].serviceId, 12345);
         vm.assertEq(dataArray[1].name, "service2");
         vm.assertEq(dataArray[1].description, "This is service2");
         vm.assertEq(
@@ -68,12 +72,13 @@ contract TestserviceMarket is Test {
         createsService();
 
         vm.prank(MANAGER);
-        serviceMarket.removeService(1);
+        serviceMarket.removeService(1, 123);
 
         vm.prank(MANAGER);
         Service[] memory dataArray = serviceMarket.fetchAllServices();
 
-        vm.assertEq(dataArray[0].id, 10);
+        vm.assertEq(dataArray[0].nodeId, 2);
+        vm.assertEq(dataArray[0].serviceId, 12345);
         vm.assertEq(dataArray[0].name, "service2");
         vm.assertEq(dataArray[0].description, "This is service2");
         vm.assertEq(

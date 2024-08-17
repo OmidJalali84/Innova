@@ -1,27 +1,47 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
+import {AccessManagers} from "./utils/AccessManagers.sol";
+
 struct Device {
-    uint256 id;
-    uint256 price;
+    uint256 nodeId;
+    uint256 deviceId;
+    string ownerId;
     string name;
-    string nodeAddress;
-    string location;
+    string deviceType;
+    string encryptedID;
+    string hardwareVersion;
+    string firmwareVersion;
+    string[] parameters;
+    string useCost;
+    string[] locationGPS;
+    string installationDate;
 }
 
-contract ShareDevice {
+contract SharedDevice is AccessManagers {
     /**********************************************************************************************/
     /*** errors                                                                                ***/
     /**********************************************************************************************/
-    error ShareDevice__DuplicatedId();
-    error ShareDevice__DeviceIdNotExist();
+    error SharedDevice__DuplicatedId(uint256 nodeId, uint256 deviceId);
+    error SharedDevice__DeviceIdNotExist(uint256 nodeId, uint256 deviceId);
+
+    /**********************************************************************************************/
+    /*** constructor                                                                             ***/
+    /**********************************************************************************************/
+
+    constructor(address initialOwner) AccessManagers(initialOwner) {}
 
     /**********************************************************************************************/
     /*** Storage                                                                                ***/
     /**********************************************************************************************/
 
     ///@dev Mapping of device id to device
-    mapping(uint256 id => Device device) private s_Devices;
+    mapping(uint256 id => Device device) private s_devices;
+
+    ///@dev Finde ID of a device by its node id and device id
+    mapping(uint256 nodeId => mapping(uint256 deviceId => uint256 id)) s_findeId;
+
+    uint256 id = 1;
 
     ///@dev Array of existing devices
     uint256[] private s_IDs;
@@ -36,64 +56,88 @@ contract ShareDevice {
     /*** external functions                                                                      ***/
     /**********************************************************************************************/
 
-    /*
-     * @param id: The id of device
-     * @param name: The name of device
-     * @param nodeAddress: The address of node
-     * @param location: The location of device
-     * @notice This function will create a new device
-     */
-    function createDevice(
-        uint256 id,
-        uint256 price,
+    function createdevice(
+        uint256 nodeId,
+        uint256 deviceId,
+        string memory ownerId,
         string memory name,
-        string memory nodeAddress,
-        string memory location
-    ) external {
+        string memory deviceType,
+        string memory encryptedID,
+        string memory hardwareVersion,
+        string memory firmwareVersion,
+        string[] memory parameters,
+        string memory useCost,
+        string[] memory locationGPS,
+        string memory installationDate
+    ) external onlyManager returns (uint256) {
         ///@dev Duplicate id error handling
-        uint256[] memory tempIDs = s_IDs; //An memory instance of IDs array. Because accessing to storage varibales are more gas expencive.
-        for (uint256 i; i < tempIDs.length; i++) {
-            if (id == tempIDs[i]) {
-                revert ShareDevice__DuplicatedId();
-            }
+        if (s_findeId[nodeId][deviceId] != 0) {
+            revert SharedDevice__DuplicatedId(nodeId, deviceId);
         }
-        s_Devices[id] = Device(id, price, name, nodeAddress, location);
+        s_findeId[nodeId][deviceId] = id;
+        s_devices[id] = Device(
+            nodeId,
+            deviceId,
+            ownerId,
+            name,
+            deviceType,
+            encryptedID,
+            hardwareVersion,
+            firmwareVersion,
+            parameters,
+            useCost,
+            locationGPS,
+            installationDate
+        );
         s_IDs.push(id);
 
-        emit DeviceCreated(id, s_Devices[id]);
+        emit DeviceCreated(id, s_devices[id]);
+        id++;
+        return id;
     }
 
     /*
      * @notice This function will remove a device by its id
-     * @dev IDs has been stored in a seprate array to handle the removing process correctlly
      */
-    function removeDevice(uint256 targetId) external {
-        uint256[] memory tempIDs = s_IDs;
+    function removedevice(
+        uint256 targetNodeId,
+        uint256 targetdeviceId
+    ) external onlyManager {
+        if (s_findeId[targetNodeId][targetdeviceId] == 0) {
+            revert SharedDevice__DeviceIdNotExist(targetNodeId, targetdeviceId);
+        }
 
+        uint256 targetId = s_findeId[targetNodeId][targetdeviceId];
+        uint256[] memory tempIDs = s_IDs;
         ///@dev removing the target ID from IDs array
         for (uint256 i; i < tempIDs.length; i++) {
             if (tempIDs[i] == targetId) {
                 s_IDs[i] = s_IDs[s_IDs.length - 1];
                 s_IDs.pop();
                 break;
-            } else if (i == tempIDs.length - 1) {
-                revert ShareDevice__DeviceIdNotExist();
             }
         }
 
-        emit DeviceRemoved(targetId, s_Devices[targetId]);
+        s_findeId[targetNodeId][targetdeviceId] = 0;
 
-        ///@dev removing the target device from s_devices mapping
-        delete (s_Devices[targetId]);
+        emit DeviceRemoved(targetId, s_devices[targetId]);
+
+        ///@dev removing the target device from devices mapping
+        delete (s_devices[targetId]);
     }
 
     /*
      * @notice Returns all the existing devices as an array
      */
-    function fetchAllDevices() external view returns (Device[] memory) {
+    function fetchAlldevices()
+        external
+        view
+        onlyManager
+        returns (Device[] memory)
+    {
         Device[] memory dataArray = new Device[](s_IDs.length);
         for (uint256 i = 0; i < s_IDs.length; i++) {
-            dataArray[i] = s_Devices[s_IDs[i]];
+            dataArray[i] = s_devices[s_IDs[i]];
         }
         return dataArray;
     }
