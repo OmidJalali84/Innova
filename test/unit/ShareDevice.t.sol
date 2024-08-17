@@ -2,51 +2,87 @@
 pragma solidity 0.8.22;
 
 import {Test} from "forge-std/Test.sol";
-import {ShareDevice, Device} from "../../../src/ShareDevice.sol";
+import {SharedDevice, Device} from "../../../src/ShareDevice.sol";
 
 contract TestshareDevice is Test {
-    ShareDevice shareDevice;
-    address constant USER = address(1);
+    SharedDevice sharedDevice;
+    address constant OWNER = address(1);
+    address constant MANAGER = address(2);
+    address constant USER = address(3);
 
     function setUp() external {
-        shareDevice = new ShareDevice();
+        sharedDevice = new SharedDevice(OWNER);
+        vm.prank(OWNER);
+        sharedDevice.addManager(MANAGER);
     }
 
     function createsDevice() public {
-        vm.startPrank(USER);
-        shareDevice.createDevice(1, 10, "Device1", "src/file1/file2", "Iran");
-        vm.stopPrank();
-        vm.startPrank(USER);
-        shareDevice.createDevice(7, 20, "Device2", "src/file3/file4", "Canada");
+        vm.startPrank(MANAGER);
+        string[] memory parameters = new string[](3);
+        parameters[0] = "param1";
+        parameters[1] = "param2";
+        parameters[2] = "param3";
+        string[] memory location = new string[](3);
+        location[0] = "loc1";
+        location[1] = "loc2";
+        location[2] = "loc3";
+        sharedDevice.createDevice(
+            1,
+            123,
+            "3",
+            "Device1",
+            "type1",
+            "45",
+            "1",
+            "2",
+            parameters,
+            "none",
+            location,
+            "date 1"
+        );
+        sharedDevice.createDevice(
+            2,
+            12345,
+            "3",
+            "Device2",
+            "type2",
+            "45",
+            "1",
+            "2",
+            parameters,
+            "none",
+            location,
+            "date 1"
+        );
         vm.stopPrank();
     }
 
     function testCreatesAndFetchesAllDevices() external {
         createsDevice();
-        Device[] memory dataArray = shareDevice.fetchAllDevices();
-        vm.assertEq(dataArray[0].id, 1);
-        vm.assertEq(dataArray[0].price, 10);
+        vm.prank(MANAGER);
+        Device[] memory dataArray = sharedDevice.fetchAllDevices();
+        vm.assertEq(dataArray[0].nodeId, 1);
+        vm.assertEq(dataArray[0].deviceId, 123);
         vm.assertEq(dataArray[0].name, "Device1");
-        vm.assertEq(dataArray[0].nodeAddress, "src/file1/file2");
-        vm.assertEq(dataArray[0].location, "Iran");
+        vm.assertEq(dataArray[0].deviceType, "type1");
 
-        vm.assertEq(dataArray[1].id, 7);
-        vm.assertEq(dataArray[1].price, 20);
+        vm.assertEq(dataArray[1].nodeId, 2);
+        vm.assertEq(dataArray[1].deviceId, 12345);
         vm.assertEq(dataArray[1].name, "Device2");
-        vm.assertEq(dataArray[1].nodeAddress, "src/file3/file4");
-        vm.assertEq(dataArray[1].location, "Canada");
+        vm.assertEq(dataArray[1].deviceType, "type2");
     }
 
     function testRemovesDeviceCorrectly() external {
         createsDevice();
 
-        shareDevice.removeDevice(1);
-        Device[] memory dataArray = shareDevice.fetchAllDevices();
+        vm.prank(MANAGER);
+        sharedDevice.removeDevice(1, 123);
+        vm.prank(MANAGER);
+        Device[] memory dataArray = sharedDevice.fetchAllDevices();
 
-        vm.assertEq(dataArray[0].id, 7);
-        vm.assertEq(dataArray[0].price, 20);
+        vm.assertEq(dataArray[0].nodeId, 2);
+        vm.assertEq(dataArray[0].deviceId, 12345);
         vm.assertEq(dataArray[0].name, "Device2");
-        vm.assertEq(dataArray[0].nodeAddress, "src/file3/file4");
-        vm.assertEq(dataArray[0].location, "Canada");
+        vm.assertEq(dataArray[0].deviceType, "type2");
     }
 }

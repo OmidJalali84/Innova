@@ -18,25 +18,42 @@ contract TestserviceMarket is Test {
 
     function createsService() public {
         vm.startPrank(MANAGER);
+        string[] memory devices = new string[](3);
+        devices[0] = "device1";
+        devices[1] = "device2";
+        devices[2] = "device3";
         serviceMarket.createService(
             1,
             123,
             "service1",
             "This is service1",
-            "function setUp() external {serviceMarket = new serviceMarket()}",
             "type1",
-            "src/file1/file2"
+            devices,
+            "10",
+            "2",
+            "src/file1/file2",
+            "function setUp() external {serviceMarket = new serviceMarket()}",
+            "date1",
+            "date2"
         );
-        vm.stopPrank();
-        vm.startPrank(MANAGER);
+
+        string[] memory devices2 = new string[](3);
+        devices2[0] = "device1";
+        devices2[1] = "device2";
+        devices2[2] = "device3";
         serviceMarket.createService(
             2,
             12345,
             "service2",
             "This is service2",
-            "function setUp() external {serviceMarket = new serviceMarket()}",
             "type2",
-            "src/file1/file3"
+            devices,
+            "20",
+            "4",
+            "src/file1/file2",
+            "function setUp() external {serviceMarket = new serviceMarket()}",
+            "date1",
+            "date2"
         );
         vm.stopPrank();
     }
@@ -49,23 +66,23 @@ contract TestserviceMarket is Test {
         vm.assertEq(dataArray[0].serviceId, 123);
         vm.assertEq(dataArray[0].name, "service1");
         vm.assertEq(dataArray[0].description, "This is service1");
+        vm.assertEq(dataArray[0].serviceType, "type1");
         vm.assertEq(
-            dataArray[0].code,
+            dataArray[0].program,
             "function setUp() external {serviceMarket = new serviceMarket()}"
         );
-        vm.assertEq(dataArray[0].serviceType, "type1");
-        vm.assertEq(dataArray[0].imageAddress, "src/file1/file2");
+        vm.assertEq(dataArray[0].imageURL, "src/file1/file2");
 
         vm.assertEq(dataArray[1].nodeId, 2);
         vm.assertEq(dataArray[1].serviceId, 12345);
         vm.assertEq(dataArray[1].name, "service2");
         vm.assertEq(dataArray[1].description, "This is service2");
         vm.assertEq(
-            dataArray[1].code,
+            dataArray[1].program,
             "function setUp() external {serviceMarket = new serviceMarket()}"
         );
         vm.assertEq(dataArray[1].serviceType, "type2");
-        vm.assertEq(dataArray[1].imageAddress, "src/file1/file3");
+        vm.assertEq(dataArray[1].imageURL, "src/file1/file2");
     }
 
     function testRemovesServiceCorrectly() external {
@@ -82,10 +99,10 @@ contract TestserviceMarket is Test {
         vm.assertEq(dataArray[0].name, "service2");
         vm.assertEq(dataArray[0].description, "This is service2");
         vm.assertEq(
-            dataArray[0].code,
+            dataArray[0].program,
             "function setUp() external {serviceMarket = new serviceMarket()}"
         );
         vm.assertEq(dataArray[0].serviceType, "type2");
-        vm.assertEq(dataArray[0].imageAddress, "src/file1/file3");
+        vm.assertEq(dataArray[0].imageURL, "src/file1/file2");
     }
 }

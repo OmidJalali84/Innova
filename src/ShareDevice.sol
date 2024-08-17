@@ -56,7 +56,7 @@ contract SharedDevice is AccessManagers {
     /*** external functions                                                                      ***/
     /**********************************************************************************************/
 
-    function createdevice(
+    function createDevice(
         uint256 nodeId,
         uint256 deviceId,
         string memory ownerId,
@@ -99,7 +99,7 @@ contract SharedDevice is AccessManagers {
     /*
      * @notice This function will remove a device by its id
      */
-    function removedevice(
+    function removeDevice(
         uint256 targetNodeId,
         uint256 targetdeviceId
     ) external onlyManager {
@@ -129,7 +129,7 @@ contract SharedDevice is AccessManagers {
     /*
      * @notice Returns all the existing devices as an array
      */
-    function fetchAlldevices()
+    function fetchAllDevices()
         external
         view
         onlyManager
