@@ -20,7 +20,7 @@ struct Device {
 
 contract SharedDevice is AccessManagers {
     /**********************************************************************************************/
-    /*** errors                                                                                ***/
+    /*** errors                                                                                 ***/
     /**********************************************************************************************/
     error SharedDevice__DuplicatedId(uint256 nodeId, uint256 deviceId);
     error SharedDevice__DeviceIdNotExist(uint256 nodeId, uint256 deviceId);
@@ -32,21 +32,22 @@ contract SharedDevice is AccessManagers {
     constructor(address initialOwner) AccessManagers(initialOwner) {}
 
     /**********************************************************************************************/
-    /*** Storage                                                                                ***/
+    /*** Storage                                                                                 ***/
     /**********************************************************************************************/
 
-    ///@dev Mapping of device id to device
+    /// @dev Mapping of device id to device
     mapping(uint256 id => Device device) private s_devices;
 
-    ///@dev Finde ID of a device by its node id and device id
-    mapping(uint256 nodeId => mapping(uint256 deviceId => uint256 id)) s_findeId;
+    /// @dev Find ID of a device by its node id and device id
+    mapping(uint256 nodeId => mapping(uint256 deviceId => uint256 id)) s_findId;
 
     uint256 id = 1;
 
-    ///@dev Array of existing devices
+    /// @dev Array of existing devices
     uint256[] private s_IDs;
+
     /**********************************************************************************************/
-    /*** events                                                                                ***/
+    /*** events                                                                                  ***/
     /**********************************************************************************************/
 
     event DeviceCreated(uint256 indexed id, Device device);
@@ -70,11 +71,11 @@ contract SharedDevice is AccessManagers {
         string[] memory locationGPS,
         string memory installationDate
     ) external onlyManager returns (uint256) {
-        ///@dev Duplicate id error handling
-        if (s_findeId[nodeId][deviceId] != 0) {
+        /// @dev Duplicate ID error handling
+        if (s_findId[nodeId][deviceId] != 0) {
             revert SharedDevice__DuplicatedId(nodeId, deviceId);
         }
-        s_findeId[nodeId][deviceId] = id;
+        s_findId[nodeId][deviceId] = id;
         s_devices[id] = Device(
             nodeId,
             deviceId,
@@ -97,19 +98,19 @@ contract SharedDevice is AccessManagers {
     }
 
     /*
-     * @notice This function will remove a device by its id
+     * @notice This function removes a device by its id
      */
     function removeDevice(
         uint256 targetNodeId,
-        uint256 targetdeviceId
+        uint256 targetDeviceId
     ) external onlyManager {
-        if (s_findeId[targetNodeId][targetdeviceId] == 0) {
-            revert SharedDevice__DeviceIdNotExist(targetNodeId, targetdeviceId);
+        if (s_findId[targetNodeId][targetDeviceId] == 0) {
+            revert SharedDevice__DeviceIdNotExist(targetNodeId, targetDeviceId);
         }
 
-        uint256 targetId = s_findeId[targetNodeId][targetdeviceId];
+        uint256 targetId = s_findId[targetNodeId][targetDeviceId];
         uint256[] memory tempIDs = s_IDs;
-        ///@dev removing the target ID from IDs array
+        /// @dev Removing the target ID from the IDs array
         for (uint256 i; i < tempIDs.length; i++) {
             if (tempIDs[i] == targetId) {
                 s_IDs[i] = s_IDs[s_IDs.length - 1];
@@ -118,11 +119,11 @@ contract SharedDevice is AccessManagers {
             }
         }
 
-        s_findeId[targetNodeId][targetdeviceId] = 0;
+        s_findId[targetNodeId][targetDeviceId] = 0;
 
         emit DeviceRemoved(targetId, s_devices[targetId]);
 
-        ///@dev removing the target device from devices mapping
+        /// @dev Removing the target device from the devices mapping
         delete (s_devices[targetId]);
     }
 
@@ -143,7 +144,7 @@ contract SharedDevice is AccessManagers {
     }
 
     /**********************************************************************************************/
-    /*** veiw functions                                                                         ***/
+    /*** view functions                                                                          ***/
     /**********************************************************************************************/
 
     function getIDs() public view returns (uint256[] memory) {

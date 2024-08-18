@@ -20,10 +20,10 @@ struct Service {
 
 contract ServiceMarket is AccessManagers {
     /**********************************************************************************************/
-    /*** errors                                                                                ***/
+    /*** errors                                                                                 ***/
     /**********************************************************************************************/
-    error ServiceMArket__DuplicatedId(uint256 nodeId, uint256 serviceId);
-    error ServiceMArket__ServiceIdNotExist(uint256 nodeId, uint256 serviceId);
+    error ServiceMarket__DuplicatedId(uint256 nodeId, uint256 serviceId);
+    error ServiceMarket__ServiceIdNotExist(uint256 nodeId, uint256 serviceId);
 
     /**********************************************************************************************/
     /*** constructor                                                                             ***/
@@ -32,21 +32,22 @@ contract ServiceMarket is AccessManagers {
     constructor(address initialOwner) AccessManagers(initialOwner) {}
 
     /**********************************************************************************************/
-    /*** Storage                                                                                ***/
+    /*** Storage                                                                                 ***/
     /**********************************************************************************************/
 
-    ///@dev Mapping of srvice id to service
+    /// @dev Mapping of service id to service
     mapping(uint256 id => Service service) private s_services;
 
-    ///@dev Finde ID of a service by its node id and service id
-    mapping(uint256 nodeId => mapping(uint256 serviceId => uint256 id)) s_findeId;
+    /// @dev Find ID of a service by its node id and service id
+    mapping(uint256 nodeId => mapping(uint256 serviceId => uint256 id)) s_findId;
 
     uint256 id = 1;
 
-    ///@dev Array of existing services
+    /// @dev Array of existing services
     uint256[] private s_IDs;
+
     /**********************************************************************************************/
-    /*** events                                                                                ***/
+    /*** events                                                                                  ***/
     /**********************************************************************************************/
 
     event ServiceCreated(uint256 indexed id, Service service);
@@ -57,13 +58,13 @@ contract ServiceMarket is AccessManagers {
     /**********************************************************************************************/
 
     /*
-     * @param id: The id of service
-     * @param name: The name of service
-     * @param description: The description of service
-     * @param code: The code of service
-     * @param servicetype: The type of service
-     * @param imageAddress: The image address of service that has stored in off-chain nodes
-     * @notice This function will create a new service
+     * @param id: The id of the service
+     * @param name: The name of the service
+     * @param description: The description of the service
+     * @param code: The code of the service
+     * @param serviceType: The type of the service
+     * @param imageAddress: The image address of the service stored in off-chain nodes
+     * @notice This function creates a new service
      */
     function createService(
         uint256 nodeId,
@@ -79,11 +80,11 @@ contract ServiceMarket is AccessManagers {
         string memory creationDate,
         string memory publishedDate
     ) external onlyManager returns (uint256) {
-        ///@dev Duplicate id error handling
-        if (s_findeId[nodeId][serviceId] != 0) {
-            revert ServiceMArket__DuplicatedId(nodeId, serviceId);
+        /// @dev Duplicate ID error handling
+        if (s_findId[nodeId][serviceId] != 0) {
+            revert ServiceMarket__DuplicatedId(nodeId, serviceId);
         }
-        s_findeId[nodeId][serviceId] = id;
+        s_findId[nodeId][serviceId] = id;
         s_services[id] = Service(
             nodeId,
             serviceId,
@@ -106,23 +107,23 @@ contract ServiceMarket is AccessManagers {
     }
 
     /*
-     * @notice This function will remove a service by its id
-     * @dev IDs has been stored in a seprate array to handle the removing process correctlly
+     * @notice This function removes a service by its id
+     * @dev IDs are stored in a separate array to handle the removal process correctly
      */
     function removeService(
         uint256 targetNodeId,
         uint256 targetServiceId
     ) external onlyManager {
-        if (s_findeId[targetNodeId][targetServiceId] == 0) {
-            revert ServiceMArket__ServiceIdNotExist(
+        if (s_findId[targetNodeId][targetServiceId] == 0) {
+            revert ServiceMarket__ServiceIdNotExist(
                 targetNodeId,
                 targetServiceId
             );
         }
 
-        uint256 targetId = s_findeId[targetNodeId][targetServiceId];
+        uint256 targetId = s_findId[targetNodeId][targetServiceId];
         uint256[] memory tempIDs = s_IDs;
-        ///@dev removing the target ID from IDs array
+        /// @dev Removing the target ID from the IDs array
         for (uint256 i; i < tempIDs.length; i++) {
             if (tempIDs[i] == targetId) {
                 s_IDs[i] = s_IDs[s_IDs.length - 1];
@@ -131,16 +132,16 @@ contract ServiceMarket is AccessManagers {
             }
         }
 
-        s_findeId[targetNodeId][targetServiceId] = 0;
+        s_findId[targetNodeId][targetServiceId] = 0;
 
         emit ServiceRemoved(targetId, s_services[targetId]);
 
-        ///@dev removing the target service from services mapping
+        /// @dev Removing the target service from services mapping
         delete (s_services[targetId]);
     }
 
     /*
-     * @notice Returns all the existing servicis as a array
+     * @notice Returns all the existing services as an array
      */
     function fetchAllServices()
         external
@@ -156,7 +157,7 @@ contract ServiceMarket is AccessManagers {
     }
 
     /**********************************************************************************************/
-    /*** veiw functions                                                                         ***/
+    /*** view functions                                                                          ***/
     /**********************************************************************************************/
 
     function getIDs() public view returns (uint256[] memory) {

@@ -7,10 +7,9 @@ contract AccessManagers is Ownable {
     /**
      * @dev The list of managers
      */
-    mapping(address account => bool isManager) managers;
+    mapping(address => bool) private isManager;
 
     error AccessManagers__IsNotManager(address account);
-    error AccessManagers__IsNotAlreadyManager(address account);
     error AccessManagers__IsAlreadyManager(address account);
 
     /**
@@ -18,31 +17,40 @@ contract AccessManagers is Ownable {
      */
     constructor(address initialOwner) Ownable(initialOwner) {}
 
+    /**
+     * @dev Modifier to restrict access to only managers
+     */
     modifier onlyManager() {
         _checkManager(msg.sender);
         _;
     }
 
     /**
-     * @dev Throws if the sender is not the manager.
+     * @dev Throws if the sender is not a manager.
      */
     function _checkManager(address account) internal view {
-        if (!managers[account]) {
+        if (!isManager[account]) {
             revert AccessManagers__IsNotManager(account);
         }
     }
 
+    /**
+     * @dev Adds a new manager. Only callable by the owner.
+     */
     function addManager(address account) external onlyOwner {
-        if (managers[account]) {
+        if (isManager[account]) {
             revert AccessManagers__IsAlreadyManager(account);
         }
-        managers[account] = true;
+        isManager[account] = true;
     }
 
-    function delManager(address account) external onlyOwner {
-        if (managers[account]) {
-            revert AccessManagers__IsNotAlreadyManager(account);
+    /**
+     * @dev Removes a manager. Only callable by the owner.
+     */
+    function removeManager(address account) external onlyOwner {
+        if (!isManager[account]) {
+            revert AccessManagers__IsNotManager(account); // Corrected error name here
         }
-        managers[account] = false;
+        isManager[account] = false;
     }
 }
